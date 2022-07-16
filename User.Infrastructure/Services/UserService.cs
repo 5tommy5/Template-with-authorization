@@ -61,7 +61,7 @@ namespace Users.Infrastructure.Services
 
         public async Task<LoginInfoModel> Login(LoginModel model)
         {
-            var user = await _db.Users.Include(x=> x.Role).FirstOrDefaultAsync(x => x.Email == model.Email && x.Password == model.Password);
+            var user = await _db.Users.Include(x=> x.Role).FirstOrDefaultAsync(x => x.Email == model.Email && x.Password == HashService.Hash(model.Password) );
 
             if(user is null)
             {
@@ -148,7 +148,7 @@ namespace Users.Infrastructure.Services
                 return res;
             }
 
-            user.Password = model.Password;
+            user.Password = HashService.Hash(model.Password);
             await _db.SaveChangesAsync();
 
             res.Success = true;
@@ -176,7 +176,7 @@ namespace Users.Infrastructure.Services
                 IsConfirmed = false,
                 RoleId = ((int)RolesHelper.Viewer),
                 Username = model.Username,
-                Password = model.Password
+                Password = HashService.Hash(model.Password)
             };
 
             _db.Users.Add(newUser);
